@@ -44,7 +44,7 @@ export default function Dashboard() {
         </div>
 
         <aside className="sidebar">
-          <MotivationWidget />
+          <MotivationWidget tasks={tasks} />
         </aside>
       </div>
     </div>
