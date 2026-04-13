@@ -11,8 +11,8 @@ FocusForge is a lightweight productivity application designed to help users mana
 - View a list of existing tasks
 - Mark tasks as completed
 
-### Motivation Mode
-A built-in feature that displays random motivational quotes intended to keep users inspired while working.
+### Productivity Insights
+A built-in feature that surfaces task progress, completion status, and practical focus tips to help users stay productive while managing their task list.
 
 ---
 

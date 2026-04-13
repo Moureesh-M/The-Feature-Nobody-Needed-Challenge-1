@@ -1,42 +1,39 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+let nextId = 1;
+const tasks = [];
 
-exports.getTasks = async (req, res) => {
-  try {
-    const tasks = await prisma.task.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-    res.json(tasks);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch tasks" });
-  }
+exports.getTasks = (req, res) => {
+  const orderedTasks = [...tasks].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+  res.json(orderedTasks);
 };
 
-exports.createTask = async (req, res) => {
+exports.createTask = (req, res) => {
   const { title } = req.body;
-  if (!title) {
+  if (!title || !title.trim()) {
     return res.status(400).json({ error: "Title is required" });
   }
-  try {
-    const newTask = await prisma.task.create({
-      data: { title },
-    });
-    res.status(201).json(newTask);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to create task" });
-  }
+
+  const newTask = {
+    id: nextId++,
+    title: title.trim(),
+    completed: false,
+    createdAt: new Date().toISOString(),
+  };
+
+  tasks.push(newTask);
+  res.status(201).json(newTask);
 };
 
-exports.updateTask = async (req, res) => {
+exports.updateTask = (req, res) => {
   const { id } = req.params;
   const { completed } = req.body;
-  try {
-    const updatedTask = await prisma.task.update({
-      where: { id: parseInt(id) },
-      data: { completed },
-    });
-    res.json(updatedTask);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to update task" });
+  const task = tasks.find((item) => item.id === parseInt(id, 10));
+
+  if (!task) {
+    return res.status(404).json({ error: "Task not found" });
   }
+
+  task.completed = Boolean(completed);
+  res.json(task);
 };

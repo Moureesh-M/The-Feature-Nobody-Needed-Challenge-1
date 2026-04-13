@@ -1,39 +1,40 @@
-import { useEffect, useState } from "react";
-import { getMotivation } from "../api/motivationApi";
-
 /**
- * Motivation Mode component.
- * This feature significantly improves productivity by keeping users inspired 
- * while they manage their tasks.
+ * Productivity Insights widget.
+ * Replaces the old quote-based Motivational Mode with task-driven feedback.
  */
-export default function MotivationWidget() {
-  const [quote, setQuote] = useState("");
+export default function MotivationWidget({ tasks = [] }) {
+  const totalTasks = tasks.length;
+  const completedCount = tasks.filter((task) => task.completed).length;
+  const pendingCount = totalTasks - completedCount;
+  const nextTask = tasks.find((task) => !task.completed);
 
-  const fetchQuote = async () => {
-    try {
-      const data = await getMotivation();
-      setQuote(data.quote);
-    } catch (err) {
-      console.error("Error fetching motivation:", err);
-    }
-  };
+  const progressLabel = totalTasks
+    ? `${completedCount} / ${totalTasks} tasks completed`
+    : "No tasks yet.";
 
-  useEffect(() => {
-    // Initial fetch
-    fetchQuote();
+  const cardMessage = totalTasks === 0
+    ? "Add a task to get a quick win and start building momentum."
+    : pendingCount === 0
+    ? "All tasks are complete. Great focus!"
+    : `Next up: ${nextTask.title}`;
 
-    // Redesign candidate: Frequent updates could be annoying and waste resources
-    const interval = setInterval(() => {
-      fetchQuote();
-    }, 5000); // 5 seconds refresh!
+  const tips = [
+    "Tackle the smallest pending task first to build momentum.",
+    "Batch similar work to reduce context switching.",
+    "Take short breaks after each completed task to sustain focus.",
+    "Review your task list and remove low-value items.",
+  ];
 
-    return () => clearInterval(interval);
-  }, []);
+  const tip = tips[completedCount % tips.length];
 
   return (
     <div className="motivation-widget">
-      <h3>Motivation Mode</h3>
-      <p>"{quote}"</p>
+      <h3>Productivity Insights</h3>
+      <p className="progress-label">{progressLabel}</p>
+      <p className="focus-message">{cardMessage}</p>
+      <div className="productivity-tip">
+        <strong>Focus Tip:</strong> {tip}
+      </div>
     </div>
   );
 }
